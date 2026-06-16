@@ -48,6 +48,9 @@ public class Visit {
     @Column(name = "pet_id")
     private int petId;
 
+    @Column(name = "vet_id")
+    private Integer vetId;
+
     public Integer getId() {
         return this.id;
     }
@@ -62,6 +65,10 @@ public class Visit {
 
     public int getPetId() {
         return this.petId;
+    }
+
+    public Integer getVetId() {
+        return this.vetId;
     }
 
     public void setId(Integer id) {
@@ -80,12 +87,17 @@ public class Visit {
         this.petId = petId;
     }
 
+    public void setVetId(Integer vetId) {
+        this.vetId = vetId;
+    }
+
 
     public static final class VisitBuilder {
         private Integer id;
         private Date date;
         private @Size(max = 8192) String description;
         private int petId;
+        private Integer vetId;
 
         private VisitBuilder() {
         }
@@ -114,12 +126,18 @@ public class Visit {
             return this;
         }
 
+        public VisitBuilder vetId(Integer vetId) {
+            this.vetId = vetId;
+            return this;
+        }
+
         public Visit build() {
             Visit visit = new Visit();
             visit.setId(id);
             visit.setDate(date);
             visit.setDescription(description);
             visit.setPetId(petId);
+            visit.setVetId(vetId);
             return visit;
         }
     }

@@ -75,6 +75,11 @@ class VisitResource {
         return new Visits(byPetIdIn);
     }
 
+    @GetMapping("vets/{vetId}/visits")
+    public Visits readByVet(@PathVariable("vetId") @Min(1) int vetId) {
+        return new Visits(visitRepository.findByVetId(vetId));
+    }
+
     record Visits(
         List<Visit> items
     ) {
