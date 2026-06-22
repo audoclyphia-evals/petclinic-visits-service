@@ -1,0 +1,46 @@
+flowchart TB
+    %% Petclinic Visits Service Architecture
+    %% Based on repository context
+    
+    client([Client])
+    
+    subgraph Visits_Service [Petclinic Visits Service]
+        subgraph Entry_Point [Application Entry]
+            VisitsServiceApplication[VisitsServiceApplication<br/>Spring Boot Main Class]
+        end
+        
+        subgraph Web_Tier [Web Tier]
+            VisitResource[VisitResource<br/>REST Controller]
+        end
+        
+        subgraph Model_Tier [Model Tier]
+            Visit[Visit<br/>JPA Entity]
+            VisitRepository[VisitRepository<br/>Spring Data JPA Interface]
+        end
+        
+        subgraph Config_Tier [Config Tier]
+            MetricConfig[MetricConfig<br/>Metrics Configuration]
+        end
+    end
+    
+    subgraph External_Systems [External Systems]
+        Database[(Database<br/>HSQLDB/MySQL)]
+        Eureka[Eureka<br/>Service Discovery]
+        ConfigServer[Spring Cloud Config]
+        Prometheus[Prometheus<br/>Metrics]
+        Zipkin[Zipkin<br/>Tracing]
+    end
+    
+    %% Internal relationships
+    VisitsServiceApplication --> VisitResource
+    VisitsServiceApplication --> MetricConfig
+    VisitResource -->|uses| VisitRepository
+    VisitRepository -->|manages| Visit
+    
+    %% External connections
+    client -->|HTTP| VisitResource
+    VisitRepository -->|JPA| Database
+    VisitsServiceApplication -->|registers| Eureka
+    VisitsServiceApplication -->|fetches config| ConfigServer
+    MetricConfig -->|exports metrics| Prometheus
+    VisitsServiceApplication -->|traces| Zipkin

@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: API Documentation
+  description: Auto-generated API documentation
+  version: 1.0.0
+paths:
+  /owners/*/pets/{petId}/visits:
+    get:
+      summary: Retrieve visits for a given pet
+      description: Returns a list of visits for the specified pet
+      operationId: getVisitsByPetId
+      tags:
+      - Visits
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      parameters:
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+        description: Identifier of the pet
+  /vets/{vetId}/visits:
+    get:
+      summary: Retrieve visits for a given vet.
+      description: Returns visits associated with the specified veterinarian.
+      operationId: readByVet
+      tags:
+      - Vets
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      parameters:
+      - name: vetId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Unique identifier of the veterinarian
+tags:
+- name: Vets
+- name: Visits
