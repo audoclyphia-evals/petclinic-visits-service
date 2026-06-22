@@ -1,0 +1,78 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+    %% Domain Model Classes - focused on model module
+    %% Visit JPA entity, its builder pattern, and VisitRepository interface
+
+    namespace model {
+        class Visit {
+            <<Entity>>
+            - id: Integer
+            - date: Date
+            - description: String
+            - petId: int
+            - vetId: Integer
+            + getId() Integer
+            + getDate() Date
+            + getDescription() String
+            + getPetId() int
+            + getVetId() Integer
+            + setId(Integer) void
+            + setDate(Date) void
+            + setDescription(String) void
+            + setPetId(int) void
+            + setVetId(Integer) void
+            %% source: context #5, Visit.java
+        }
+        class VisitBuilder {
+            <<Builder>>
+            - id: Integer
+            - date: Date
+            - description: String
+            - petId: int
+            - vetId: Integer
+            + aVisit() VisitBuilder
+            + id(Integer) VisitBuilder
+            + date(Date) VisitBuilder
+            + description(String) VisitBuilder
+            + petId(int) VisitBuilder
+            + vetId(Integer) VisitBuilder
+            + build() Visit
+            %% source: context #5, Visit.java (inner class)
+        }
+        class VisitRepository {
+            <<Interface>>
+            + findByPetId(int) List~Visit~
+            + findByPetIdIn(Collection~Integer~) List~Visit~
+            + findByVetId(int) List~Visit~
+            %% source: context #5, VisitRepository.java
+        }
+    }
+
+    namespace web {
+        class VisitResource {
+            <<RestController>>
+            - visitRepository: VisitRepository
+            + create(Visit, int) Visit
+            + read(int) List~Visit~
+            + read(List~Integer~) Visits
+            + readByVet(int) Visits
+            %% source: context #5, VisitResource.java
+        }
+        class Visits {
+            <<Record>>
+            - items: List~Visit~
+            + Visits(List~Visit~)
+            %% source: context #5, VisitResource.java (inner record)
+        }
+    }
+
+    %% Relationships (outside namespaces)
+    VisitBuilder ..> Visit : creates
+    VisitBuilder --> VisitBuilder : factory method
+    VisitRepository ..|> JpaRepository~Visit, Integer~ : extends
+    VisitResource --> VisitRepository : uses
+    VisitResource --> Visit : returns
+    VisitResource --> Visits : returns

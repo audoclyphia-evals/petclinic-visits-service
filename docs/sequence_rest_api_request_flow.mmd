@@ -1,0 +1,20 @@
+sequenceDiagram
+    %% Sequence diagram for REST API request flow for retrieving visits by pet IDs
+    %% Based on code from VisitResource and VisitRepository
+    %% Shows HTTP request handling through controller to repository
+
+    participant VR as VisitResource %% source: Context #1 and #5 - REST controller
+    participant Repo as VisitRepository %% source: Context #1 and #5 - JPA repository interface
+
+    autonumber
+
+    note right of VR: HTTP GET /pets/visits?petId=1,2 (external request implied)
+    activate VR
+    VR->>Repo: findByPetIdIn(petIds)
+    activate Repo
+    Repo-->>VR: List<Visit>
+    deactivate Repo
+    %% VisitResource wraps the result in Visits record
+    VR->>VR: create Visits(List<Visit>)
+    deactivate VR
+    note left of VR: Return Visits response to client
