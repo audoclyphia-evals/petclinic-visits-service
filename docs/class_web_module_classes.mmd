@@ -1,0 +1,86 @@
+---
+config:
+  layout: elk
+---
+%% source: Context #1 (VisitResource, VisitBuilder, VisitRepository), Context #5 (ResourceNotFoundException), Context #8 (Visit, VisitBuilder, VisitResource, VisitRepository, ResourceNotFoundException)
+classDiagram
+    direction TB
+    %% Namespace for model layer classes
+    namespace model {
+        class Visit {
+            <<Entity>>
+            -Integer id
+            -Date date
+            -String description
+            -int petId
+            -Integer vetId
+            +getId(): Integer
+            +getDate(): Date
+            +getDescription(): String
+            +getPetId(): int
+            +getVetId(): Integer
+            +setId(Integer): void
+            +setDate(Date): void
+            +setDescription(String): void
+            +setPetId(int): void
+            +setVetId(Integer): void
+        }
+        
+        class VisitBuilder {
+            <<Builder>>
+            -Integer id
+            -Date date
+            -String description
+            -int petId
+            -Integer vetId
+            +aVisit(): VisitBuilder
+            +id(Integer): VisitBuilder
+            +date(Date): VisitBuilder
+            +description(String): VisitBuilder
+            +petId(int): VisitBuilder
+            +vetId(Integer): VisitBuilder
+            +build(): Visit
+        }
+        
+        class VisitRepository {
+            <<Interface>>
+            +findByPetId(int): List~Visit~
+            +findByPetIdIn(Collection): List~Visit~
+            +findByVetId(int): List~Visit~
+        }
+    }
+    
+    %% Namespace for web layer classes
+    namespace web {
+        class VisitResource {
+            <<RestController>>
+            -VisitRepository visitRepository
+            -Logger log
+            +create(Visit, int): Visit
+            +read(int): List~Visit~
+            +read(List): Visits
+            +readByVet(int): Visits
+            +update(Visit, int, int): void
+            +delete(int, int): void
+        }
+        
+        class ResourceNotFoundException {
+            <<Exception>>
+            +ResourceNotFoundException(String): void
+        }
+        
+        class Visits {
+            <<Record>>
+            -List~Visit~ items
+        }
+    }
+    
+    %% Relationships - all placed outside namespaces
+    VisitBuilder ..> Visit : creates
+    VisitBuilder --> Visit : builds
+    VisitResource --> VisitRepository : uses
+    VisitResource --> Visit : works with
+    VisitResource ..> ResourceNotFoundException : throws
+    VisitResource --> Visits : returns
+    VisitRepository ..> Visit : manages
+    Visits "1" -- "0..*" Visit : contains

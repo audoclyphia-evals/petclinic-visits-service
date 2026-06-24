@@ -1,4 +1,4 @@
-/*
+/*  // This Java source file contains the VisitResource class, which is a Spring REST controller for managing visit operations. The file includes the Apache License header, necessary Spring MVC imports (e.g., PutMapping, DeleteMapping, RestController), and defines the VisitResource class. The file is part of the REST API layer and utilizes the @Timed annotation for metrics configuration.
  * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,12 +36,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author Juergen Hoeller
- * @author Ken Krebs
- * @author Arjen Poutsma
- * @author Michael Isvy
- * @author Maciej Szarlinski
- * @author Ramazan Sakin
+ * The VisitResource class is a REST controller responsible for handling visit-related CRUD operations. It is annotated with @RestController and @Timed('petclinic.visit') for metrics configuration. The class includes a logger for logging and a VisitRepository dependency injected via constructor. It defines endpoints for creating (POST), reading (GET), updating (PUT), and deleting (DELETE) visits, all interacting with the Visit entity class. Error handling uses ResourceNotFoundException for missing visits. A nested Visits record is used to return lists of visits.
  */
 @RestController
 @Timed("petclinic.visit")
@@ -71,6 +66,9 @@ class VisitResource {
         return visitRepository.findByPetId(petId);
     }
 
+    /**
+     * This GET endpoint retrieves visits by a list of pet IDs. It uses the @GetMapping annotation with path pattern 'pets/visits' and accepts a request parameter petId of type List<Integer>. The method calls visitRepository.findByPetIdIn to fetch the visits and returns them wrapped in a Visits record, enabling the REST API layer to provide visit data based on pet IDs.
+     */
     @GetMapping("pets/visits")
     public Visits read(@RequestParam("petId") List<Integer> petIds) {
         final List<Visit> byPetIdIn = visitRepository.findByPetIdIn(petIds);
@@ -83,7 +81,7 @@ class VisitResource {
     }
 
     /**
-     * Update a visit's description and/or date.
+     * This PUT endpoint updates a visit's description and/or date. It uses the @PutMapping annotation with path pattern 'owners/*/pets/{petId}/visits/{visitId}' and returns HTTP 204 No Content. The method accepts a validated Visit entity object in the request body and path variables petId and visitId, both with @Min(1) validation. It retrieves the existing Visit by visitId using visitRepository.findById, throwing a ResourceNotFoundException if not found, then updates the description and conditionally sets the date, logs the update, and saves the modified visit to the repository.
      */
     @PutMapping("owners/*/pets/{petId}/visits/{visitId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -103,7 +101,7 @@ class VisitResource {
     }
 
     /**
-     * Delete (cancel) a visit by ID.
+     * This DELETE endpoint deletes a visit by ID. It uses the @DeleteMapping annotation with path pattern 'owners/*/pets/{petId}/visits/{visitId}' and returns HTTP 204 No Content. The method takes path variables petId and visitId with @Min(1) validation, retrieves the Visit entity by visitId using visitRepository.findById, throwing a ResourceNotFoundException if not found, logs the deletion, and deletes the visit from the repository.
      */
     @DeleteMapping("owners/*/pets/{petId}/visits/{visitId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

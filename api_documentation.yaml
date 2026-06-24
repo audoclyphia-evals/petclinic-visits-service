@@ -4,11 +4,64 @@ info:
   description: Auto-generated API documentation
   version: 1.0.0
 paths:
-  /owners/*/pets/{petId}/visits:
+  /vets/{vetId}/visits:
     get:
-      summary: Retrieve visits for a given pet
-      description: Returns a list of visits for the specified pet
-      operationId: getVisitsByPetId
+      summary: Endpoint to read visits by vet ID
+      description: Retrieves all visits associated with a specific vet.
+      operationId: readByVet
+      tags:
+      - Visits
+      responses:
+        '200':
+          description: Success - Returns list of visits for the given vet
+        '400':
+          description: Bad request - Invalid vetId (less than 1)
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      parameters:
+      - name: vetId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Unique identifier of the vet (must be >= 1)
+  /owners/*/pets/{petId}/visits/{visitId}:
+    delete:
+      summary: Delete a visit by ID
+      description: Deletes a visit associated with a pet by their IDs.
+      operationId: deleteVisit
+      tags:
+      - Visit
+      responses:
+        '204':
+          description: Visit deleted successfully
+        '400':
+          description: Invalid ID provided
+        '404':
+          description: Visit not found
+        '500':
+          description: Internal server error
+      parameters:
+      - name: petId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID of the pet
+      - name: visitId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID of the visit to delete
+  /pets/visits:
+    get:
+      summary: Retrieve visits by pet IDs
+      description: Fetches all visit records associated with the provided list of
+        pet IDs.
+      operationId: getVisitsByPetIds
       tags:
       - Visits
       responses:
@@ -22,35 +75,13 @@ paths:
           description: Internal server error
       parameters:
       - name: petId
-        in: path
+        in: query
         required: true
         schema:
-          type: integer
-          minimum: 1
-        description: Identifier of the pet
-  /vets/{vetId}/visits:
-    get:
-      summary: Retrieve visits for a given vet.
-      description: Returns visits associated with the specified veterinarian.
-      operationId: readByVet
-      tags:
-      - Vets
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Bad request
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal server error
-      parameters:
-      - name: vetId
-        in: path
-        required: true
-        schema:
-          type: integer
-        description: Unique identifier of the veterinarian
+          type: array
+          items:
+            type: integer
+        description: List of pet IDs to query
 tags:
-- name: Vets
+- name: Visit
 - name: Visits
