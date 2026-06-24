@@ -28,6 +28,8 @@ import org.springframework.samples.petclinic.visits.model.VisitRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -78,6 +80,41 @@ class VisitResource {
     @GetMapping("vets/{vetId}/visits")
     public Visits readByVet(@PathVariable("vetId") @Min(1) int vetId) {
         return new Visits(visitRepository.findByVetId(vetId));
+    }
+
+    /**
+     * Update a visit's description and/or date.
+     */
+    @PutMapping("owners/*/pets/{petId}/visits/{visitId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(
+        @Valid @RequestBody Visit visit,
+        @PathVariable("petId") @Min(1) int petId,
+        @PathVariable("visitId") @Min(1) int visitId) {
+
+        Visit existing = visitRepository.findById(visitId)
+            .orElseThrow(() -> new ResourceNotFoundException("Visit " + visitId + " not found"));
+        existing.setDescription(visit.getDescription());
+        if (visit.getDate() != null) {
+            existing.setDate(visit.getDate());
+        }
+        log.info("Updating visit {}", existing);
+        visitRepository.save(existing);
+    }
+
+    /**
+     * Delete (cancel) a visit by ID.
+     */
+    @DeleteMapping("owners/*/pets/{petId}/visits/{visitId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+        @PathVariable("petId") @Min(1) int petId,
+        @PathVariable("visitId") @Min(1) int visitId) {
+
+        Visit existing = visitRepository.findById(visitId)
+            .orElseThrow(() -> new ResourceNotFoundException("Visit " + visitId + " not found"));
+        log.info("Deleting visit {}", existing);
+        visitRepository.delete(existing);
     }
 
     record Visits(
