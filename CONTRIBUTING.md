@@ -2,15 +2,7 @@
 
 Guidelines for contributing to the petclinic-visits-service module of the Spring PetClinic Microservices platform.
 
-The petclinic-visits-service is a Spring Boot microservice responsible for managing veterinary visit records. It exposes REST endpoints for creating and querying visits, persists data via JPA with Spring Data repositories, and integrates with Spring Cloud service discovery. Contributors should understand this service's domain model and API surface before submitting changes.
-
----
-
-## Architecture Overview
-
-For a detailed understanding of the service's component structure, design decisions, and integration points, refer to the [Architecture Overview](ARCHITECTURE.md).
-
----
+The petclinic-visits-service is a Spring Boot microservice responsible for managing veterinary visit records. It exposes REST endpoints for creating, reading, updating, and deleting visits, persists data via JPA with Spring Data repositories, and integrates with Spring Cloud service discovery. Contributors should understand this service's domain model and API surface before submitting changes.
 
 ## Development
 
@@ -20,12 +12,10 @@ For a detailed understanding of the service's component structure, design decisi
 - **Apache Maven** for build and dependency management
 - An IDE with Java support (IntelliJ IDEA, Eclipse, or VS Code)
 
-### Project Structure
-
 The source code is organized into three packages:
 
 - **`model`** — Contains the `Visit` JPA entity and the `VisitRepository` interface. The `Visit` entity maps to the `visits` table and includes fields: `id`, `date`, `petId`, `vetId`, and `description`.
-- **`web`** — Contains `VisitResource`, the REST controller that exposes endpoints for visit CRUD operations.
+- **`web`** — Contains `VisitResource`, the REST controller that exposes endpoints for visit CRUD operations (create, read, update, delete). Also contains `ResourceNotFoundException`, a custom exception annotated with `@ResponseStatus(NOT_FOUND)` used when requested visits do not exist.
 - **`config`** — Contains `MetricConfig`, which configures Micrometer-based application metrics and enables `@Timed` annotations.
 
 The entry point for the application is `VisitsServiceApplication.java`.
@@ -35,6 +25,7 @@ The entry point for the application is `VisitsServiceApplication.java`.
 Build the project using Maven from the repository root:
 
 ```bash
+
 # Compile and package (skips tests)
 mvn clean package -DskipTests
 
@@ -65,6 +56,7 @@ Tests are located under `src/test/java` and use **JUnit 5** (Jupiter) along with
 ### Running Tests
 
 ```bash
+
 # Run all tests
 mvn test
 
@@ -127,3 +119,6 @@ When modifying the `Visit` entity or adding new domain classes in the `model` pa
 - Ensure all fields have appropriate getters and setters.
 - Maintain backward compatibility with existing REST API consumers.
 - Update `VisitRepository` if new query methods are needed — Spring Data naming conventions are used throughout.
+- The `Visits` record (defined inside `VisitResource`) is used as a response wrapper for batch queries (e.g., fetching visits for multiple pet IDs). New batch-read endpoints should follow this pattern rather than returning a raw `List`.
+- Use the `VisitBuilder` fluent API when constructing `Visit` objects in tests or service code outside of JPA mapping contexts (e.g., `VisitBuilder.aVisit().petId(1).description("Checkup").build()`).
+- The `ResourceNotFoundException` custom exception (annotated with `@ResponseStatus(NOT_FOUND)`) should be thrown when a requested visit or related resource does not exist, rather than returning a default error response.

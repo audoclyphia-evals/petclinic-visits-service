@@ -1,0 +1,48 @@
+flowchart TB
+    %% PetClinic Visits Service Architecture
+    %% Source: Context #1, #2, #5, #6
+
+    subgraph Entry_Point [Entry Point]
+        %% source: Context #1
+        app[VisitsServiceApplication]
+    end
+
+    subgraph Web_Layer [Web Layer]
+        %% source: Context #6
+        controller[VisitResource]
+        %% source: Context #5
+        exception[ResourceNotFoundException]
+    end
+
+    subgraph Model_Layer [Model Layer]
+        %% source: Context #8
+        entity[Visit]
+        %% source: Context #1
+        repository[VisitRepository]
+    end
+
+    subgraph Config_Layer [Configuration]
+        %% source: Context #1
+        metric[MetricConfig]
+    end
+
+    subgraph Infrastructure [Infrastructure]
+        %% source: pom.xml context
+        discovery[Service Discovery Client]
+        %% source: Context #4
+        micrometer[Micrometer Metrics]
+    end
+
+    app -->|enables| discovery
+    app --> controller
+    app --> entity
+    app --> repository
+    app --> metric
+
+    controller -->|uses| repository
+    repository -->|persists| entity
+
+    controller -.->|throws| exception
+
+    metric -.->|configures| micrometer
+    micrometer -.->|monitors| controller

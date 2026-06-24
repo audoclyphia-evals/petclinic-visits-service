@@ -1,0 +1,36 @@
+sequenceDiagram
+    %% Source: Context #6 - VisitResource class with update/delete endpoints
+    participant Client as "Client"
+    %% Source: Context #8 - VisitResource REST controller
+    participant VR as "VisitResource"
+    %% Source: Context #8 - VisitRepository interface
+    participant Repo as "VisitRepository"
+    %% Source: Context #5 - ResourceNotFoundException class
+    participant Ex as "ResourceNotFoundException"
+
+    Client->>VR: PUT /owners/*/pets/{petId}/visits/{visitId}
+    activate VR
+    %% Source: Context #5 - update() endpoint code shows findById call
+    VR->>Repo: findById(visitId)
+    activate Repo
+    %% Source: Context #8 - VisitRepository extends JpaRepository
+    Repo-->>VR: Optional<Visit>
+    deactivate Repo
+
+    alt Visit not found
+        %% Source: Context #5 - update() endpoint code shows orElseThrow
+        VR->>Ex: throw ResourceNotFoundException
+        activate Ex
+        %% Source: Context #5 - ResourceNotFoundException class definition
+        Ex-->>Client: 404 Not Found
+        deactivate Ex
+    else Visit found
+        %% Source: Context #5 - update() endpoint shows save call
+        VR->>Repo: save(existing)
+        activate Repo
+        Repo-->>VR: void
+        deactivate Repo
+        %% Source: Context #5 - update() endpoint returns 204
+        VR-->>Client: 204 No Content
+    end
+    deactivate VR
